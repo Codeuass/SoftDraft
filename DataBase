@@ -1,0 +1,181 @@
+# BossNok POS System - Database Documentation
+
+## Overview
+The BossNok system now uses **SQLite** database with SQL queries for persistent data storage. This replaces the previous in-memory-only approach.
+
+## Database Connection
+- **Type**: SQLite (local file-based)
+- **File**: `bossnok.db` (auto-created in project root)
+- **Driver**: `org.sqlite.JDBC`
+- **Manager**: `com.bossnok.util.DatabaseManager`
+
+## Database Tables
+
+### 1. Products Table
+```sql
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,`
+    price REAL NOT NULL,
+    quantity INTEGER NOT NULL,
+    emoji TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(name, category)
+);
+```
+**Indexes**: Auto-indexes on id and unique constraint on (name, category)
+
+### 2. Orders Table
+```sql
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_date TEXT NOT NULL,
+    total_amount REAL NOT NULL,
+    amount_paid REAL NOT NULL,
+    change_amount REAL NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+**Indexes**: id (primary), created_at for queries
+
+### 3. Order Items Table
+```sql
+CREATE TABLE order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    product_name TEXT NOT NULL,
+    unit_price REAL NOT NULL,
+    quantity INTEGER NOT NULL,
+    subtotal REAL NOT NULL,
+    FOREIGN KEY(order_id) REFERENCES orders(id),
+    FOREIGN KEY(product_id) REFERENCES products(id)
+);
+```
+**Indexes**: order_id for quick lookup
+
+## Key Features
+
+### Data Persistence
+- All products are saved to database when created/updated/deleted
+- All orders and items are persisted automatically
+- Data survives application restarts
+
+### Analytics Queries
+Available through `DatabaseQuery` class:
+- `getTotalRevenue()` - Sum of all orders
+- `getTodayRevenue()` - Sum of today's orders
+- `getTotalOrders()` - Count of all orders
+- `getTotalItemsSold()` - Sum of all items sold
+- `getTotalInventory()` - Total stock count
+- `getLowStockCount()` - Count of products with qty <= 10
+
+### Transaction Integrity
+- Foreign keys enforce referential integrity
+- Order items can't exist without valid orders
+- Cascade considerations: deleting an order maintains orphaned items (safe deletion)
+
+## Usage Examples
+
+### Add Product
+```java
+InventoryService service = InventoryService.getInstance();
+Product p = new Product(0, "New Item", "Chicken", 150.00, 50, "🍗");
+service.addProduct(p);  // Auto-saves to database
+```
+
+### Checkout Order
+```java
+POSController pos = new POSController();
+// ... add items to cart ...
+// handleCheckout() method:
+// 1. Saves order to orders table
+// 2. Saves each item to order_items table
+// 3. Deducts stock from products
+// 4. Generates receipt
+```
+
+### Query Sales Data
+```java
+SalesService sales = SalesService.getInstance();
+double totalRevenue = sales.getTotalRevenue();
+int totalItems = sales.getTotalItemsSold();
+```
+
+## File Structure
+```
+bossnok.db (SQLite database file)
+src/main/java/com/bossnok/
+├── util/
+│   ├── DatabaseManager.java      # Connection & table creation
+│   ├── DatabaseQuery.java        # SQL queries
+│   ├── NumberFormat.java         # Currency formatting
+│   ├── AlertUtil.java            # Dialog utilities
+│   └── Receipt.java              # Receipt generation
+├── service/
+│   ├── InventoryService.java     # Uses DatabaseQuery
+│   └── SalesService.java         # Uses DatabaseQuery
+└── controller/
+    ├── POSController.java        # Enhanced with receipts
+    ├── InventoryController.java  # DB refresh
+    └── DashboardController.java  # Real-time analytics
+```
+
+## Best Practices
+
+### 1. Always Use Services
+```java
+// ✅ CORRECT
+InventoryService service = InventoryService.getInstance();
+service.addProduct(product);
+
+// ❌ AVOID
+DatabaseQuery.insertProduct(product);  // Bypasses service layer
+```
+
+### 2. Handle Exceptions
+All database operations may throw SQLException. Controllers use AlertUtil for user feedback:
+```java
+try {
+    service.addProduct(product);
+} catch (SQLException e) {
+    AlertUtil.showError("Error", "Failed to add product");
+}
+```
+
+### 3. Refresh After Updates
+For other users/windows viewing same data:
+```java
+service.refresh();  // Reloads from database
+tableView.refresh();  // Updates UI
+```
+
+## Performance Tips
+1. Use categories to filter products - creates small result sets
+2. Archive old orders regularly (optional future feature)
+3. Index on order_date if querying by date range
+
+## Future Enhancements
+- [ ] MySQL support (change DB_URL and driver)
+- [ ] Data export (CSV, Excel)
+- [ ] Backup/restore functionality
+- [ ] Transaction logging
+- [ ] User authentication with password hashing
+- [ ] Multi-user support
+
+## Troubleshooting
+
+### Database locked error
+- Close all file explorers viewing the folder
+- Restart the application
+
+### Data not saving
+- Check file permissions on project directory
+- Ensure DatabaseManager.initialize() was called
+- Check console for SQL error messages
+
+### Slow queries
+- Use refresh() sparingly
+- Cache results in ObservableList between queries
+- Consider batching inserts for bulk operations
