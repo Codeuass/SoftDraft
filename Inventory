@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="18" styleClass="screen-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bossnok.controller.InventoryController">
+    <padding>
+        <Insets top="26" right="28" bottom="24" left="28"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="16" styleClass="screen-header">
+        <VBox spacing="4">
+            <Label text="Inventory" styleClass="page-title"/>
+            <Label text="Maintain products, pricing, costs, and stock counts" styleClass="page-subtitle"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Refresh" onAction="#handleRefresh" styleClass="btn-secondary"/>
+    </HBox>
+
+    <HBox spacing="18" VBox.vgrow="ALWAYS">
+        <VBox spacing="12" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="panel-heading-row">
+                <Label text="Product Catalog" styleClass="section-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Select an item to edit" styleClass="panel-note"/>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="toolbar-panel">
+                <TextField fx:id="inventorySearchField" promptText="Search product name or code..." HBox.hgrow="ALWAYS" styleClass="search-field"/>
+                <ComboBox fx:id="inventoryCategoryFilter" promptText="All categories" prefWidth="160"/>
+                <Button text="Reset" onAction="#clearInventoryFilters" styleClass="btn-ghost"/>
+            </HBox>
+
+            <TableView fx:id="productTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="58"/>
+                    <TableColumn fx:id="emojiColumn" text="Code" prefWidth="86" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="nameColumn" text="Product" prefWidth="250"/>
+                    <TableColumn fx:id="categoryColumn" text="Category" prefWidth="120"/>
+                    <TableColumn fx:id="priceColumn" text="Price" prefWidth="110"/>
+                    <TableColumn fx:id="costColumn" text="Cost" prefWidth="110"/>
+                    <TableColumn fx:id="qtyColumn" text="Stock" prefWidth="100"/>
+                </columns>
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="6" styleClass="table-empty-state">
+                        <Label text="No products match the filter" styleClass="empty-title"/>
+                        <Label text="Clear filters or add a new item" styleClass="empty-copy"/>
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <VBox spacing="16" prefWidth="360" minWidth="340" styleClass="editor-pane">
+            <VBox spacing="4">
+                <Label text="Item Editor" styleClass="section-title"/>
+                <Label text="Changes save to the product database" styleClass="panel-note"/>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Display Code" styleClass="field-label"/>
+                <TextField fx:id="emojiField" promptText="e.g. LM" alignment="CENTER"/>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Product Name" styleClass="field-label"/>
+                <TextField fx:id="nameField" promptText="Enter product name"/>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Category" styleClass="field-label"/>
+                <ComboBox fx:id="categoryCombo" promptText="Select category" maxWidth="Infinity"/>
+            </VBox>
+
+            <GridPane hgap="12" vgap="12">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+                <VBox spacing="8" GridPane.columnIndex="0">
+                    <Label text="Selling Price" styleClass="field-label"/>
+                    <TextField fx:id="priceField" promptText="0.00"/>
+                </VBox>
+                <VBox spacing="8" GridPane.columnIndex="1">
+                    <Label text="Unit Cost" styleClass="field-label"/>
+                    <TextField fx:id="costField" promptText="0.00"/>
+                </VBox>
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                    <Label text="Stock Available" styleClass="field-label"/>
+                    <TextField fx:id="qtyField" promptText="0"/>
+                </VBox>
+            </GridPane>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="10">
+                <HBox spacing="10">
+                    <Button text="Save New" onAction="#handleAdd" styleClass="btn-success" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button text="Update" onAction="#handleUpdate" styleClass="btn-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Button text="Delete" onAction="#handleDelete" styleClass="btn-danger" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button text="Clear" onAction="#clearFields" styleClass="btn-ghost" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>
