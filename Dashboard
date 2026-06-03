@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<ScrollPane fitToWidth="true" styleClass="content-scroll dashboard-scroll" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bossnok.controller.DashboardController">
+    <VBox spacing="18" styleClass="screen-root dashboard-root">
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="screen-header">
+            <VBox spacing="4">
+                <Label text="Overview" styleClass="page-title"/>
+                <Label text="Sales, product mix, and operating margin" styleClass="page-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="dateLabel" text="May 29, 2026" styleClass="header-date"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="segmented-control dashboard-periods">
+            <ToggleButton fx:id="dailyButton" text="Daily" onAction="#showDaily" styleClass="overview-tab"/>
+            <ToggleButton fx:id="weeklyButton" text="Weekly" onAction="#showWeekly" styleClass="overview-tab"/>
+            <ToggleButton fx:id="monthlyButton" text="Monthly" onAction="#showMonthly" styleClass="overview-tab"/>
+        </HBox>
+
+        <GridPane hgap="14" vgap="14">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+            </columnConstraints>
+            <VBox spacing="7" styleClass="summary-card featured-card" GridPane.columnIndex="0">
+                <Label fx:id="salesPeriodLabel" text="TODAY'S SALES" styleClass="summary-label"/>
+                <Label fx:id="todaysSalesLabel" text="PHP 0" styleClass="summary-value"/>
+                <Label fx:id="todaysSalesChangeLabel" text="PHP 0 vs yesterday" styleClass="summary-change"/>
+            </VBox>
+            <VBox spacing="7" styleClass="summary-card" GridPane.columnIndex="1">
+                <Label fx:id="profitPeriodLabel" text="NET PROFIT TODAY" styleClass="summary-label"/>
+                <Label fx:id="netProfitLabel" text="PHP 0" styleClass="summary-value"/>
+                <Label fx:id="netProfitChangeLabel" text="0% margin" styleClass="summary-change"/>
+            </VBox>
+            <VBox spacing="7" styleClass="summary-card" GridPane.columnIndex="2">
+                <Label fx:id="chickensPeriodLabel" text="CHICKENS SOLD TODAY" styleClass="summary-label"/>
+                <Label fx:id="chickensSoldLabel" text="0" styleClass="summary-value"/>
+                <Label fx:id="chickensSoldChangeLabel" text="+0 vs yesterday" styleClass="summary-change"/>
+            </VBox>
+            <VBox spacing="7" styleClass="summary-card" GridPane.columnIndex="3">
+                <Label fx:id="liempoPeriodLabel" text="LIEMPO ORDERS TODAY" styleClass="summary-label"/>
+                <Label fx:id="liempoOrdersLabel" text="0" styleClass="summary-value"/>
+                <Label fx:id="liempoOrdersChangeLabel" text="+0 vs yesterday" styleClass="summary-change"/>
+            </VBox>
+        </GridPane>
+
+        <GridPane hgap="14" vgap="14">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+            <VBox spacing="16" styleClass="product-panel" GridPane.columnIndex="0">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="LM" styleClass="product-code"/>
+                    <VBox spacing="2">
+                        <Label text="Lechon Manok" styleClass="product-title"/>
+                        <Label text="Whole, half, and quarter cuts" styleClass="panel-note"/>
+                    </VBox>
+                </HBox>
+                <GridPane hgap="16">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                    </columnConstraints>
+                    <VBox spacing="4" GridPane.columnIndex="0">
+                        <Label text="Revenue" styleClass="summary-label"/>
+                        <Label fx:id="lechonRevenueLabel" text="PHP 0" styleClass="product-metric"/>
+                    </VBox>
+                    <VBox spacing="4" GridPane.columnIndex="1">
+                        <Label text="Profit" styleClass="summary-label"/>
+                        <Label fx:id="lechonProfitLabel" text="PHP 0" styleClass="product-metric accent-text"/>
+                    </VBox>
+                    <VBox spacing="4" GridPane.columnIndex="2">
+                        <Label text="Margin" styleClass="summary-label"/>
+                        <Label fx:id="lechonMarginLabel" text="0%" styleClass="product-metric"/>
+                    </VBox>
+                </GridPane>
+            </VBox>
+
+            <VBox spacing="16" styleClass="product-panel" GridPane.columnIndex="1">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="LP" styleClass="product-code alt-code"/>
+                    <VBox spacing="2">
+                        <Label text="Liempo" styleClass="product-title"/>
+                        <Label text="Per 100g, half slab, and full slab" styleClass="panel-note"/>
+                    </VBox>
+                </HBox>
+                <GridPane hgap="16">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                    </columnConstraints>
+                    <VBox spacing="4" GridPane.columnIndex="0">
+                        <Label text="Revenue" styleClass="summary-label"/>
+                        <Label fx:id="liempoRevenueLabel" text="PHP 0" styleClass="product-metric"/>
+                    </VBox>
+                    <VBox spacing="4" GridPane.columnIndex="1">
+                        <Label text="Profit" styleClass="summary-label"/>
+                        <Label fx:id="liempoProfitLabel" text="PHP 0" styleClass="product-metric accent-text"/>
+                    </VBox>
+                    <VBox spacing="4" GridPane.columnIndex="2">
+                        <Label text="Margin" styleClass="summary-label"/>
+                        <Label fx:id="liempoMarginLabel" text="0%" styleClass="product-metric"/>
+                    </VBox>
+                </GridPane>
+            </VBox>
+        </GridPane>
+
+        <VBox spacing="10" styleClass="chart-panel">
+            <VBox spacing="3">
+                <Label fx:id="chartTitleLabel" text="Hourly sales" styleClass="section-title"/>
+                <Label fx:id="chartNoteLabel" text="Revenue per hour, today" styleClass="panel-note"/>
+            </VBox>
+            <HBox spacing="14" alignment="CENTER_LEFT" styleClass="chart-legend">
+                <Label text="Lechon Manok" styleClass="legend-manok"/>
+                <Label text="Liempo" styleClass="legend-liempo"/>
+            </HBox>
+            <StackPane prefHeight="292">
+                <Label fx:id="salesEmptyLabel" text="No sales yet for this period" styleClass="empty-title"/>
+                <StackedBarChart fx:id="hourlyChart" legendVisible="false" animated="false" styleClass="overview-hourly-chart">
+                    <xAxis>
+                        <CategoryAxis tickLabelRotation="0"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis lowerBound="0" upperBound="1000" tickUnit="200" autoRanging="false"/>
+                    </yAxis>
+                </StackedBarChart>
+            </StackPane>
+        </VBox>
+
+        <GridPane hgap="14" vgap="14">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+            <VBox spacing="10" styleClass="chart-panel" GridPane.columnIndex="0">
+                <Label text="Revenue Split" styleClass="section-title"/>
+                <Label fx:id="revenueSplitNoteLabel" text="Manok vs Liempo today" styleClass="panel-note"/>
+                <HBox spacing="14" alignment="CENTER_LEFT" styleClass="chart-legend">
+                    <Label fx:id="manokLegendLabel" text="Manok 0%" styleClass="legend-manok"/>
+                    <Label fx:id="liempoLegendLabel" text="Liempo 0%" styleClass="legend-liempo"/>
+                </HBox>
+                <StackPane prefHeight="238">
+                    <Label fx:id="revenueEmptyLabel" text="No revenue split yet" styleClass="empty-title"/>
+                    <StackPane fx:id="revenueChartPane">
+                        <PieChart fx:id="revenueSplitChart" labelsVisible="false" legendVisible="false" startAngle="90" styleClass="overview-donut-chart revenue-donut"/>
+                        <Circle radius="54" styleClass="overview-donut-hole"/>
+                    </StackPane>
+                </StackPane>
+            </VBox>
+
+            <VBox spacing="10" styleClass="chart-panel" GridPane.columnIndex="1">
+                <Label text="Cost vs Profit" styleClass="section-title"/>
+                <Label fx:id="costProfitNoteLabel" text="Today's breakdown" styleClass="panel-note"/>
+                <HBox spacing="14" alignment="CENTER_LEFT" styleClass="chart-legend">
+                    <Label fx:id="rawLegendLabel" text="Raw cost PHP 0" styleClass="legend-raw"/>
+                    <Label fx:id="laborLegendLabel" text="Labor/ops PHP 0" styleClass="legend-labor"/>
+                    <Label fx:id="profitLegendLabel" text="Profit PHP 0" styleClass="legend-profit"/>
+                </HBox>
+                <StackPane prefHeight="238">
+                    <Label fx:id="costEmptyLabel" text="No cost data yet" styleClass="empty-title"/>
+                    <StackPane fx:id="costChartPane">
+                        <PieChart fx:id="costProfitChart" labelsVisible="false" legendVisible="false" startAngle="90" styleClass="overview-donut-chart cost-donut"/>
+                        <Circle radius="54" styleClass="overview-donut-hole"/>
+                    </StackPane>
+                </StackPane>
+            </VBox>
+        </GridPane>
+    </VBox>
+</ScrollPane>
