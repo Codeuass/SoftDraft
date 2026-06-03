@@ -1,0 +1,67 @@
+,<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="18" styleClass="screen-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bossnok.controller.SalesHistoryController">
+    <padding>
+        <Insets top="26" right="28" bottom="24" left="28"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="16" styleClass="screen-header">
+        <VBox spacing="4">
+            <Label text="Transactions" styleClass="page-title"/>
+            <Label text="Search receipts and review sales performance" styleClass="page-subtitle"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Refresh" onAction="#handleRefresh" styleClass="btn-secondary"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="filter-bar">
+        <TextField fx:id="salesSearchField" promptText="Search transaction ID..." HBox.hgrow="ALWAYS" styleClass="search-field"/>
+        <Label text="From" styleClass="field-label"/>
+        <DatePicker fx:id="startDatePicker" promptText="Start date"/>
+        <Label text="To" styleClass="field-label"/>
+        <DatePicker fx:id="endDatePicker" promptText="End date"/>
+        <Button text="Apply" onAction="#applyDateFilter" styleClass="btn-primary"/>
+        <Button text="Today" onAction="#filterToday" styleClass="btn-ghost"/>
+        <Button text="Week" onAction="#filterThisWeek" styleClass="btn-ghost"/>
+        <Button text="Month" onAction="#filterThisMonth" styleClass="btn-ghost"/>
+        <Button text="Clear" onAction="#clearDateFilter" styleClass="btn-ghost"/>
+    </HBox>
+
+    <GridPane hgap="14" vgap="14">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="33.33"/>
+            <ColumnConstraints percentWidth="33.33"/>
+            <ColumnConstraints percentWidth="33.33"/>
+        </columnConstraints>
+        <VBox spacing="6" styleClass="summary-card" GridPane.columnIndex="0">
+            <Label text="Revenue" styleClass="summary-label"/>
+            <Label fx:id="totalRevenueLabel" text="PHP 0.00" styleClass="summary-value"/>
+        </VBox>
+        <VBox spacing="6" styleClass="summary-card" GridPane.columnIndex="1">
+            <Label text="Transactions" styleClass="summary-label"/>
+            <Label fx:id="totalTransactionsLabel" text="0" styleClass="summary-value"/>
+        </VBox>
+        <VBox spacing="6" styleClass="summary-card" GridPane.columnIndex="2">
+            <Label text="Items Sold" styleClass="summary-label"/>
+            <Label fx:id="totalItemsSoldLabel" text="0" styleClass="summary-value"/>
+        </VBox>
+    </GridPane>
+
+    <TableView fx:id="salesTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+        <columns>
+            <TableColumn fx:id="orderIdCol" text="Transaction ID" prefWidth="150"/>
+            <TableColumn fx:id="dateCol" text="Date and Time" prefWidth="250"/>
+            <TableColumn fx:id="itemsCol" text="Items" prefWidth="140"/>
+            <TableColumn fx:id="totalCol" text="Gross Amount" prefWidth="180"/>
+        </columns>
+        <placeholder>
+            <VBox alignment="CENTER" spacing="6" styleClass="table-empty-state">
+                <Label text="No transactions found" styleClass="empty-title"/>
+                <Label text="Adjust search or date filters" styleClass="empty-copy"/>
+            </VBox>
+        </placeholder>
+    </TableView>
+</VBox>
