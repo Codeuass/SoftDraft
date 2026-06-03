@@ -1,0 +1,260 @@
+package com.bossnok.controller;
+
+import com.bossnok.model.Product;
+import com.bossnok.service.InventoryService;
+import com.bossnok.util.AlertUtil;
+import com.bossnok.util.NumberFormat;
+import com.bossnok.util.ValidationUtil;
+import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+public class InventoryController {
+
+    @FXML private TableView<Product> productTable;
+    @FXML private TableColumn<Product, Integer> idColumn;
+    @FXML private TableColumn<Product, String> emojiColumn;
+    @FXML private TableColumn<Product, String> nameColumn;
+    @FXML private TableColumn<Product, String> categoryColumn;
+    @FXML private TableColumn<Product, Double> priceColumn;
+    @FXML private TableColumn<Product, Double> costColumn;
+    @FXML private TableColumn<Product, Integer> qtyColumn;
+
+    @FXML private TextField emojiField;
+    @FXML private TextField nameField;
+    @FXML private ComboBox<String> categoryCombo;
+    @FXML private TextField priceField;
+    @FXML private TextField costField;
+    @FXML private TextField qtyField;
+    @FXML private TextField inventorySearchField;
+    @FXML private ComboBox<String> inventoryCategoryFilter;
+
+    private final InventoryService inventoryService = InventoryService.getInstance();
+    private FilteredList<Product> filteredInventory;
+    private Product selectedProduct;
+
+    @FXML
+    public void initialize() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        emojiColumn.setCellValueFactory(new PropertyValueFactory<>("emoji"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        costColumn.setCellValueFactory(new PropertyValueFactory<>("costPrice"));
+        qtyColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        priceColumn.setCellFactory(column -> currencyCell());
+        costColumn.setCellFactory(column -> currencyCell());
+
+        categoryCombo.setEditable(true);
+        refreshCategoryOptions();
+        inventoryCategoryFilter.setValue("All categories");
+
+        filteredInventory = new FilteredList<>(inventoryService.getInventory(), product -> true);
+        productTable.setItems(filteredInventory);
+        inventorySearchField.textProperty().addListener((obs, old, value) -> applyInventoryFilters());
+        inventoryCategoryFilter.valueProperty().addListener((obs, old, value) -> applyInventoryFilters());
+
+        productTable.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) -> showProductDetails(newValue)
+        );
+    }
+
+    private TableCell<Product, Double> currencyCell() {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : NumberFormat.formatCurrency(value));
+            }
+        };
+    }
+
+    private void refreshCategoryOptions() {
+        String selectedEditorText = categoryCombo.getEditor().getText();
+        String selectedFilter = inventoryCategoryFilter.getValue();
+        categoryCombo.getItems().setAll(inventoryService.getCategories());
+        inventoryCategoryFilter.getItems().setAll("All categories");
+        inventoryCategoryFilter.getItems().addAll(inventoryService.getCategories());
+        categoryCombo.getEditor().setText(selectedEditorText);
+        inventoryCategoryFilter.setValue(selectedFilter == null ? "All categories" : selectedFilter);
+    }
+
+    private void applyInventoryFilters() {
+        String query = inventorySearchField.getText() == null
+            ? ""
+            : inventorySearchField.getText().trim().toLowerCase();
+        String category = inventoryCategoryFilter.getValue();
+
+        filteredInventory.setPredicate(product -> {
+            boolean matchesQuery = query.isEmpty()
+                || safeLower(product.getName()).contains(query)
+                || safeLower(product.getEmoji()).contains(query)
+                || safeLower(product.getCategory()).contains(query);
+            boolean matchesCategory = category == null
+                || "All categories".equals(category)
+                || product.getCategory().equals(category);
+
+            return matchesQuery && matchesCategory;
+        });
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase();
+    }
+
+    private void showProductDetails(Product product) {
+        selectedProduct = product;
+        if (product != null) {
+            emojiField.setText(product.getEmoji());
+            nameField.setText(product.getName());
+            categoryCombo.setValue(product.getCategory());
+            priceField.setText(String.valueOf(product.getPrice()));
+            costField.setText(String.valueOf(product.getCostPrice()));
+            qtyField.setText(String.valueOf(product.getQuantity()));
+        } else {
+            clearFields();
+        }
+    }
+
+    @FXML
+    private void handleAdd() {
+        try {
+            String name = ValidationUtil.requireText(nameField.getText(), "Product name");
+            String category = readCategory();
+            double price = ValidationUtil.requirePositiveMoney(priceField.getText(), "Selling price");
+            double cost = ValidationUtil.requireNonNegativeMoney(costField.getText(), "Unit cost");
+            int quantity = ValidationUtil.requireNonNegativeInteger(qtyField.getText(), "Stock available");
+            validateCost(price, cost);
+
+            Product product = new Product(
+                0,
+                name,
+                category,
+                price,
+                cost,
+                quantity,
+                emojiField.getText().isBlank() ? "[Item]" : emojiField.getText().trim()
+            );
+
+            if (!inventoryService.addProduct(product)) {
+                AlertUtil.showError("Save Failed", "Product could not be saved. It may already exist.");
+                return;
+            }
+
+            AlertUtil.showInfo("Success", "Product added successfully.");
+            refreshCategoryOptions();
+            clearFields();
+            productTable.refresh();
+        } catch (IllegalArgumentException e) {
+            AlertUtil.showWarning("Input Error", e.getMessage());
+        } catch (Exception e) {
+            AlertUtil.showError("Error", "Failed to add product: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUpdate() {
+        if (selectedProduct == null) {
+            AlertUtil.showWarning("No Selection", "Please select a product to update.");
+            return;
+        }
+
+        try {
+            String name = ValidationUtil.requireText(nameField.getText(), "Product name");
+            String category = readCategory();
+            double price = ValidationUtil.requirePositiveMoney(priceField.getText(), "Selling price");
+            double cost = ValidationUtil.requireNonNegativeMoney(costField.getText(), "Unit cost");
+            int quantity = ValidationUtil.requireNonNegativeInteger(qtyField.getText(), "Stock available");
+            validateCost(price, cost);
+
+            selectedProduct.setEmoji(emojiField.getText().isBlank() ? "[Item]" : emojiField.getText().trim());
+            selectedProduct.setName(name);
+            selectedProduct.setCategory(category);
+            selectedProduct.setPrice(price);
+            selectedProduct.setCostPrice(cost);
+            selectedProduct.setQuantity(quantity);
+
+            if (!inventoryService.updateProduct(selectedProduct)) {
+                AlertUtil.showError("Update Failed", "Product could not be updated.");
+                return;
+            }
+
+            AlertUtil.showInfo("Success", "Product updated successfully.");
+            refreshCategoryOptions();
+            productTable.refresh();
+        } catch (IllegalArgumentException e) {
+            AlertUtil.showWarning("Input Error", e.getMessage());
+        } catch (Exception e) {
+            AlertUtil.showError("Error", "Failed to update product: " + e.getMessage());
+        }
+    }
+
+    private String readCategory() {
+        String typedCategory = categoryCombo.getEditor().getText();
+        if (typedCategory == null || typedCategory.isBlank()) {
+            typedCategory = categoryCombo.getValue();
+        }
+        return ValidationUtil.requireText(typedCategory, "Category");
+    }
+
+    private void validateCost(double price, double cost) {
+        if (cost > price) {
+            throw new IllegalArgumentException("Unit cost cannot be greater than selling price.");
+        }
+    }
+
+    @FXML
+    private void handleDelete() {
+        if (selectedProduct == null) {
+            AlertUtil.showWarning("No Selection", "Please select a product to delete.");
+            return;
+        }
+
+        if (AlertUtil.showConfirm("Confirm Delete", "Delete '" + selectedProduct.getName() + "'?")) {
+            try {
+                if (!inventoryService.deleteProduct(selectedProduct)) {
+                    AlertUtil.showError("Delete Failed", "Product could not be deleted. It may be linked to existing sales.");
+                    return;
+                }
+
+                AlertUtil.showInfo("Success", "Product deleted successfully.");
+                clearFields();
+                productTable.refresh();
+            } catch (Exception e) {
+                AlertUtil.showError("Error", "Failed to delete product: " + e.getMessage());
+            }
+        }
+    }
+
+    @FXML
+    private void handleRefresh() {
+        try {
+            inventoryService.refresh();
+            refreshCategoryOptions();
+            applyInventoryFilters();
+            productTable.refresh();
+            AlertUtil.showInfo("Refreshed", "Inventory data reloaded from database.");
+        } catch (Exception e) {
+            AlertUtil.showError("Error", "Failed to refresh: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void clearInventoryFilters() {
+        inventorySearchField.clear();
+        inventoryCategoryFilter.setValue("All categories");
+        applyInventoryFilters();
+    }
+
+    @FXML
+    private void clearFields() {
+        productTable.getSelectionModel().clearSelection();
+        emojiField.setText("");
+        nameField.setText("");
+        categoryCombo.setValue(null);
+        priceField.setText("");
+        costField.setText("");
+        qtyField.setText("");
+    }
+}
