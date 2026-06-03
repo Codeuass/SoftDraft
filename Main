@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="mainPane" styleClass="app-shell" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bossnok.controller.MainController">
+    <left>
+        <VBox spacing="18" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="18" bottom="20" left="18"/>
+            </padding>
+
+            <VBox spacing="6" styleClass="brand-block">
+                <Label text="BossNok" styleClass="brand-logo"/>
+                <Label text="Lechon Manok POS" styleClass="brand-subtitle"/>
+            </VBox>
+
+            <VBox spacing="8" VBox.vgrow="ALWAYS">
+                <Label text="WORKSPACE" styleClass="nav-section-label"/>
+                <Button fx:id="btnDashboard" text="Overview" onAction="#showDashboard" maxWidth="Infinity" styleClass="nav-button"/>
+                <Button fx:id="btnPOS" text="Register" onAction="#showPOS" maxWidth="Infinity" styleClass="nav-button"/>
+                <Button fx:id="btnInventory" text="Inventory" onAction="#showInventory" maxWidth="Infinity" styleClass="nav-button"/>
+                <Button fx:id="btnSales" text="Transactions" onAction="#showSales" maxWidth="Infinity" styleClass="nav-button"/>
+            </VBox>
+
+            <VBox spacing="10" styleClass="sidebar-status">
+                <Label text="Local Register" styleClass="sidebar-user"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Region styleClass="status-dot"/>
+                    <Label text="System online" styleClass="sidebar-status-text"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane styleClass="main-stage"/>
+    </center>
+</BorderPane>
