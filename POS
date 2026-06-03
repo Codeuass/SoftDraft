@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox spacing="0" styleClass="screen-root pos-screen" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bossnok.controller.POSController">
+    <VBox spacing="18" HBox.hgrow="ALWAYS" styleClass="workspace-pane">
+        <padding>
+            <Insets top="26" right="24" bottom="24" left="28"/>
+        </padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="screen-header">
+            <VBox spacing="4">
+                <Label text="Register" styleClass="page-title"/>
+                <Label text="Fast order entry for counter service" styleClass="page-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <HBox fx:id="categoryChips" spacing="8" styleClass="segmented-control"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="toolbar-panel">
+            <TextField fx:id="productSearchField" promptText="Search products..." HBox.hgrow="ALWAYS" styleClass="search-field"/>
+            <Label fx:id="productCountLabel" text="0 products" styleClass="panel-note"/>
+        </HBox>
+
+        <StackPane VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" styleClass="content-scroll">
+                <FlowPane fx:id="productGrid" hgap="14" vgap="14" styleClass="product-grid"/>
+            </ScrollPane>
+            <VBox fx:id="productEmptyMsg" alignment="CENTER" spacing="8" managed="false" visible="false" styleClass="empty-state">
+                <Label text="No products found" styleClass="empty-title"/>
+                <Label text="Adjust search or category filter" styleClass="empty-copy"/>
+            </VBox>
+        </StackPane>
+    </VBox>
+
+    <VBox spacing="16" prefWidth="430" minWidth="390" maxWidth="430" styleClass="cart-pane">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox spacing="3">
+                <Label text="Current Order" styleClass="cart-header"/>
+                <Label text="Review quantities before checkout" styleClass="panel-note"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Clear" onAction="#handleClearCart" styleClass="btn-clear-cart"/>
+        </HBox>
+
+        <StackPane VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" styleClass="content-scroll">
+                <VBox fx:id="cartBox" spacing="10" styleClass="cart-list"/>
+            </ScrollPane>
+            <VBox fx:id="cartEmptyMsg" alignment="CENTER" spacing="8" managed="false" visible="false" styleClass="empty-state">
+                <Label text="No items yet" styleClass="empty-title"/>
+                <Label text="Choose a product to begin" styleClass="empty-copy"/>
+            </VBox>
+        </StackPane>
+
+        <VBox spacing="14" styleClass="cart-summary-box">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Total Due" styleClass="cart-total-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="totalLabel" text="PHP 0.00" styleClass="cart-total-value"/>
+            </HBox>
+
+            <Separator/>
+
+            <VBox spacing="8">
+                <Label text="Cash Received" styleClass="cart-total-label"/>
+                <TextField fx:id="paymentField" promptText="0.00" styleClass="payment-input" alignment="CENTER_RIGHT"/>
+            </VBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Change" styleClass="cart-total-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="changeLabel" text="PHP 0.00" styleClass="cart-change-value"/>
+            </HBox>
+        </VBox>
+
+        <Button fx:id="checkoutButton" text="Process Payment" onAction="#handleCheckout" styleClass="btn-success checkout-button" maxWidth="Infinity"/>
+    </VBox>
+</HBox>
